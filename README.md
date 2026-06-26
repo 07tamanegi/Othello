@@ -1,2 +1,0 @@
-# Othello
-python othello
