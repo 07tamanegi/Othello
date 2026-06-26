@@ -151,8 +151,11 @@ def cpu_move(board,player):
 def player_turn(board,player):
   if (player == BLACK):
     stone_desc = "黒石(x)"
+    player_desc = "黒"
   elif (player == WHITE):
     stone_desc = "白石(o)"
+    player_desc = "白"
+  print(player_desc,"の番です")
   while True:
     moves = legal_moves(board,player)
     if (len(moves) == 0):
@@ -160,7 +163,6 @@ def player_turn(board,player):
       break
     else:
       print("置ける場所:",[(y+1,x+1) for x,y in moves])
-      print(stone_desc,"を置く座標を指定してください(1-8の間)")
     
       while True:
         try:
