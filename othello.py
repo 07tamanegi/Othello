@@ -1,4 +1,4 @@
-# import
+# import.
 import random
 
 # 定数とか.
@@ -147,7 +147,12 @@ def cpu_move(board,player):
   moves = legal_moves(board,player)
   return random.choice(moves)
 
+# 人間の手番.
 def player_turn(board,player):
+  if (player == BLACK):
+    stone_desc = "黒石(x)"
+  elif (player == WHITE):
+    stone_desc = "白石(o)"
   while True:
     moves = legal_moves(board,player)
     if (len(moves) == 0):
@@ -155,9 +160,23 @@ def player_turn(board,player):
       break
     else:
       print("置ける場所:",[(y+1,x+1) for x,y in moves])
-      print("黒石(x)を置く座標を指定してください(1-8の間)、先に横の座標、次に縦の座標")
-      y = int(input())-1
-      x = int(input())-1
+      print(stone_desc,"を置く座標を指定してください(1-8の間)")
+    
+      while True:
+        try:
+          user_input = input("横の座標を入力してください")
+          y = int(user_input)-1
+          break
+        except ValueError:
+          print("半角英数字を入力してください")
+      while True:
+        try:
+          user_input = input("縦の座標を入力してください")
+          x = int(user_input)-1
+          break
+        except ValueError:
+          print("半角英数字を入力してください")
+      
       if (is_outside(x,y)):
         print("範囲外です")
         continue
@@ -185,7 +204,7 @@ while True:
 
   print_board(board)
 
-  # 白の番(player)
+  # 白の番(player).
   # player_turn(board,WHITE)
 
   # 白の番(CPU).
