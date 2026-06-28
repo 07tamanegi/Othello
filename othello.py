@@ -52,11 +52,11 @@ def enemy_stone(player):
 
 # 置かれているか.
 def is_placed(row,col,board):
-    return board[row][col] != '・'
+  return board[row][col] != '・'
 
 # 範囲外か.
 def is_outside(row,col):
-    return not((0 <= row and row < BOARD_HEIGHT) and (0 <= col and col < BOARD_WIDTH))
+  return not((0 <= row and row < BOARD_HEIGHT) and (0 <= col and col < BOARD_WIDTH))
 
 # 置けるか.
 def can_place(row,col,board,player):
