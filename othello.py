@@ -2,89 +2,92 @@
 import random
 
 # 定数とか.
+# 必ず偶数にすること!.
 BOARD_WIDTH = 8
 BOARD_HEIGHT = 8
 BLACK = 1
 WHITE = 0
+ONEPLAYER = 0
+TWOPLAYER = 1
 
 # 8近傍.
-dx8 = [-1,-1,-1,0,0,1,1,1]
-dy8 = [-1,0,1,-1,1,-1,0,1]
+dr8 = [-1,-1,-1,0,0,1,1,1]
+dc8 = [-1,0,1,-1,1,-1,0,1]
 
 # リセット.
 def reset(board):
   for i in range(BOARD_WIDTH):
     for j in range(BOARD_HEIGHT):
-      board[i][j] = '-'
-  board[int(BOARD_WIDTH/2-1)][int(BOARD_HEIGHT/2-1)] = 'o'
-  board[int(BOARD_WIDTH/2-1)][int(BOARD_HEIGHT/2)] = 'x'
-  board[int(BOARD_WIDTH/2)][int(BOARD_HEIGHT/2-1)] = 'x'
-  board[int(BOARD_WIDTH/2)][int(BOARD_HEIGHT/2)] = 'o'
+      board[j][i] = '・'
+  board[int(BOARD_HEIGHT/2-1)][int(BOARD_WIDTH/2-1)] = '◯'
+  board[int(BOARD_HEIGHT/2-1)][int(BOARD_WIDTH/2)] = '●'
+  board[int(BOARD_HEIGHT/2)][int(BOARD_WIDTH/2-1)] = '●'
+  board[int(BOARD_HEIGHT/2)][int(BOARD_WIDTH/2)] = '◯'
   return board
 
 # 描画.
 def print_board(board):
-  print("  ",end = '')
-  for k in range(BOARD_WIDTH):
-    print(k+1,end = ' ')
+  print("　 ",end = '')
+  for c in range(BOARD_WIDTH):
+    print(c+1,end = ' ')
   print()
-  for i in range(BOARD_WIDTH):
-    print(i+1,end = ' ')
-    for j in range(BOARD_HEIGHT):
-      print(board[i][j],end = ' ')
+  for r in range(BOARD_HEIGHT):
+    print(r+1,end = ' ')
+    for c in range(BOARD_WIDTH):
+      print(board[r][c],end = '')
     print()
 
 # 自分の石.
 def my_stone(player):
   if (player == BLACK):
-    return 'x'
+    return '●'
   elif (player == WHITE):
-    return 'o'
+    return '◯'
 # 敵の石.
 def enemy_stone(player):
   if (player == BLACK):
-    return 'o'
+    return '◯'
   elif (player == WHITE):
-    return 'x'
+    return '●'
 
 # 置かれているか.
-def is_placed(x,y,board):
-    return board[x][y] != '-'
+def is_placed(row,col,board):
+    return board[row][col] != '・'
 
 # 範囲外か.
-def is_outside(x,y):
-    return not((0 <= x and x < BOARD_WIDTH) and (0 <= y and y < BOARD_HEIGHT))
+def is_outside(row,col):
+    return not((0 <= row and row < BOARD_HEIGHT) and (0 <= col and col < BOARD_WIDTH))
 
 # 置けるか.
-def can_place(x,y,board,player):
-  if (is_placed(x,y,board)):
+def can_place(row,col,board,player):
+  if (is_placed(row,col,board)):
     return False
 
   me = my_stone(player)
   enemy = enemy_stone(player)
 
   for i in range(8):
-    dx = x + dx8[i]
-    dy = y + dy8[i]
-    if (is_outside(dx,dy)):
+    dr = row + dr8[i]
+    dc = col + dc8[i]
+    if (is_outside(dr,dc)):
       continue
-    if (board[dx][dy] != enemy):
+    if (board[dr][dc] != enemy):
       continue
 
     while True:
-      dx += dx8[i]
-      dy += dy8[i]
-      if (is_outside(dx,dy)):
+      dr += dr8[i]
+      dc += dc8[i]
+      if (is_outside(dr,dc)):
         break
-      if (board[dx][dy] == '-'):
+      if (board[dr][dc] == '・'):
         break
-      if (board[dx][dy] == me):
+      if (board[dr][dc] == me):
         return True
   return False
 
 # ひっくり返せるかどうか+ひっくり返す座標.
-def get_flips(x,y,board,player):
-  if (is_placed(x,y,board)):
+def get_flips(row,col,board,player):
+  if (is_placed(row,col,board)):
     return []
 
   me = my_stone(player)
@@ -92,53 +95,53 @@ def get_flips(x,y,board,player):
 
   flips = []
   for i in range(8):
-    dx = x + dx8[i]
-    dy = y + dy8[i]
+    dr = row + dr8[i]
+    dc = col + dc8[i]
     temp = []
 
-    while not(is_outside(dx,dy)):
-      if (board[dx][dy] == enemy):
-        temp.append((dx,dy))
-      elif (board[dx][dy] == me):
+    while not(is_outside(dr,dc)):
+      if (board[dr][dc] == enemy):
+        temp.append((dr,dc))
+      elif (board[dr][dc] == me):
         if (len(temp) > 0):
           flips.extend(temp)
         break
       else:
         break
-      dx += dx8[i]
-      dy += dy8[i]
+      dr += dr8[i]
+      dc += dc8[i]
 
   return flips
 
 # 置く.
-def place_stone(x,y,board,player):
-  flips = get_flips(x,y,board,player)
+def place_stone(row,col,board,player):
+  flips = get_flips(row,col,board,player)
   if (len(flips) == 0):
     return False
   stone = my_stone(player)
-  board[x][y] = stone
-  for i,j in flips:
-    board[i][j] = stone
+  board[row][col] = stone
+  for r,c in flips:
+    board[r][c] = stone
   return True
 
 # 合法手.
 def legal_moves(board,player):
   moves = []
-  for i in range(BOARD_WIDTH):
-    for j in range(BOARD_HEIGHT):
-      if (can_place(i,j,board,player)):
-        moves.append((i,j))
+  for r in range(BOARD_HEIGHT):
+    for c in range(BOARD_WIDTH):
+      if (can_place(r,c,board,player)):
+        moves.append((r,c))
   return moves
 
 # 石の個数.
 def count_stones(board):
   count_black = 0
   count_white = 0
-  for i in range(BOARD_WIDTH):
-    for j in range(BOARD_HEIGHT):
-      if (board[i][j] == 'x'):
+  for r in range(BOARD_HEIGHT):
+    for c in range(BOARD_WIDTH):
+      if (board[r][c] == '●'):
         count_black += 1
-      elif (board[i][j] == 'o'):
+      elif (board[r][c] == '◯'):
         count_white += 1
   return count_black,count_white
 
@@ -150,10 +153,8 @@ def cpu_move(board,player):
 # 人間の手番.
 def player_turn(board,player):
   if (player == BLACK):
-    stone_desc = "黒石(x)"
     player_desc = "黒"
   elif (player == WHITE):
-    stone_desc = "白石(o)"
     player_desc = "白"
   print(player_desc,"の番です")
   while True:
@@ -162,37 +163,50 @@ def player_turn(board,player):
       print("置ける場所がないためパスします")
       break
     else:
-      print("置ける場所:",[(y+1,x+1) for x,y in moves])
-    
+      print("置ける場所:",[(col+1,row+1) for row,col in moves])
+
       while True:
         try:
           user_input = input("横の座標を入力してください")
-          y = int(user_input)-1
+          col = int(user_input)-1
           break
         except ValueError:
           print("半角英数字を入力してください")
       while True:
         try:
           user_input = input("縦の座標を入力してください")
-          x = int(user_input)-1
+          row = int(user_input)-1
           break
         except ValueError:
           print("半角英数字を入力してください")
-      
-      if (is_outside(x,y)):
+
+      if (is_outside(row,col)):
         print("範囲外です")
         continue
-      if (place_stone(x,y,board,player)):
+      if (place_stone(row,col,board,player)):
         break
       else:
         print("そこには置けません")
         continue
 
+# モード選択.
+def select_mode():
+  while True:
+    try:
+      mode = int(input("モードを選択してください(1P(Player vs CPU):0,2P(Player vs Player):1)"))
+      if (mode == ONEPLAYER or mode == TWOPLAYER):
+        return mode
+      else:
+        print("0か1を入力してくだdさい")
+    except ValueError:
+      print("半角英数字を入力してください")
+
 
 
 # 初期化.
-board = [['-']*BOARD_WIDTH for _ in range(BOARD_HEIGHT)]
+board = [['・']*BOARD_WIDTH for _ in range(BOARD_HEIGHT)]
 reset(board)
+mode = select_mode()
 # メインループ.
 while True:
   print_board(board)
@@ -207,23 +221,25 @@ while True:
   print_board(board)
 
   # 白の番(player).
-  # player_turn(board,WHITE)
+  if (mode == TWOPLAYER):
+    player_turn(board,WHITE)
 
   # 白の番(CPU).
-  moves = legal_moves(board,WHITE)
-  if (len(moves) == 0):
-    print("CPUはパスしました")
-  else:
-    x,y = cpu_move(board,WHITE)
-    place_stone(x,y,board,WHITE)
+  elif (mode == ONEPLAYER):
+    moves = legal_moves(board,WHITE)
+    if (len(moves) == 0):
+      print("CPUはパスしました")
+    else:
+      row,col = cpu_move(board,WHITE)
+      place_stone(row,col,board,WHITE)
+      print("CPUは",col+1,row+1,"に置きました")
 # 個数,勝敗判定.
 black,white = count_stones(board)
-print("黒:",black)
-print("白:",white)
+print("黒:",black,"白:",white)
 
 if (black > white):
-  print("あなたの勝ち(黒の勝ち)")
+  print("黒の勝ち")
 elif (black == white):
   print("引き分け")
 else:
-  print("あなたの負け(白の勝ち)")
+  print("白の勝ち")
